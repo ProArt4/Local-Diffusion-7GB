@@ -108,3 +108,7 @@ flutter_launcher_icons:
   adaptive_icon_background: "#000000" 
   adaptive_icon_foreground: "assets/icon/icon.png"
   adaptive_icon_mask: true
+dependency_overrides:
+  intl: ^0.20.2
+  shadcn_ui: 0.19.3
+  
