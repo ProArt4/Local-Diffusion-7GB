@@ -12,20 +12,13 @@ if (localPropertiesFile.exists()) {
     }
 }
 
-def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
-if (flutterVersionCode == null) {
-    flutterVersionCode = '1'
-}
-
-def flutterVersionName = localProperties.getProperty('flutter.versionName')
-if (flutterVersionName == null) {
-    flutterVersionName = '1.0'
-}
+def flutterVersionCode = localProperties.getProperty('flutter.versionCode') ?: '1'
+def flutterVersionName = localProperties.getProperty('flutter.versionName') ?: '1.0'
 
 android {
     namespace "com.example.local_diffusion"
-    compileSdkVersion flutter.compileSdkVersion
-    ndkVersion flutter.ndkVersion
+    compileSdkVersion 35 // Force Android 15
+    ndkVersion "27.0.12077973" // Modern NDK for ARMv9 support
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -40,22 +33,40 @@ android {
         main.java.srcDirs += 'src/main/kotlin'
     }
 
+    // MANDATORY FOR ANDROID 15: Fixes 16KB page alignment crashes
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "com.example.local_diffusion"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion flutter.minSdkVersion
-        targetSdkVersion flutter.targetSdkVersion
+        minSdkVersion 24
+        targetSdkVersion 35 // Target Android 15
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+
+        // BREAKS THE 4GB LIMIT: Forces 64-bit memory addressing
+        ndk {
+            abiFilters 'arm64-v8a'
+        }
+
+        // ARMv9 & ANDROID 15 PERFORMANCE FIXES
+        externalNativeBuild {
+            cmake {
+                // 16KB page size for Snapdragon 8s Gen 4 + AI instructions
+                cppFlags "-Wl,-z,max-page-size=16384 -march=armv8.2-a+dotprod+i8mm"
+            }
+        }
     }
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig signingConfigs.debug
+            // Optimization: Shrink resources to save more RAM
+            minifyEnabled false
+            shrinkResources false
         }
     }
 }
