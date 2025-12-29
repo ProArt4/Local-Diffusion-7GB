@@ -52,13 +52,7 @@ android {
             abiFilters 'arm64-v8a'
         }
 
-        // ARMv9 & ANDROID 15 PERFORMANCE FIXES
-        externalNativeBuild {
-            cmake {
-                // 16KB page size for Snapdragon 8s Gen 4 + AI instructions
-                cppFlags "-Wl,-z,max-page-size=16384 -march=armv8.2-a+dotprod+i8mm"
-            }
-        }
+
     }
 
     buildTypes {
