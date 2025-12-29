@@ -5,6 +5,8 @@
 
 
     <application
+        android:largeHeap="true"
+        android:allowNativeHeapPointerTagging="false"
         android:label="Local Diffusion"
         android:name="${applicationName}"
         android:requestLegacyExternalStorage="true"
